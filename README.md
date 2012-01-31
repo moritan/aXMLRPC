@@ -12,6 +12,9 @@ common java virtual machine (not only on Android).
 You can control the client with some flags to extend its functionality. See the section
 about flags.
 
+EDIT :  I added a SSLSocketFactory to allow https connections (without certificates), 
+and I modified the XMLElement::toString by using a StringBuilder because I had some memory problems.
+
 How to include it?
 ==================
 
