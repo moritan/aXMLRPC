@@ -47,6 +47,8 @@ public class XmlElement {
 	/**
 	 * Return a string representation of this xml element.
 	 *
+	 * Jonathan DETCHART edit : Use a StringBuilder for 
+	 * concatenations.
 	 * @return String representation of xml element.
 	 */
 	@Override
@@ -54,12 +56,17 @@ public class XmlElement {
 		if(content != null && content.length() > 0) {
 			return "\n<" + name + ">" + content + "</" + name + ">\n";
 		} else if(children.size() > 0) {
-			String str = "\n<" + name + ">";
+			StringBuilder sb = new StringBuilder();
+			sb.append("\n<").append(name).append(">");
+			//String str = "\n<" + name + ">";
 			for(XmlElement x : children) {
-				str += x.toString();
+				sb.append(x.toString());
+				//str += x.toString();
 			}
-			str += "</" + name + ">\n";
-			return str;
+			//str += "</" + name + ">\n";
+			sb.append("</").append(name).append(">\n");
+			//return str;
+			return sb.toString();
 		} else {
 			return "\n<" + name + "/>\n" ;
 		}

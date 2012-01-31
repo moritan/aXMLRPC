@@ -1,6 +1,5 @@
 package de.timroes.axmlrpc;
 
-import de.timroes.axmlrpc.serializer.SerializerHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -10,6 +9,13 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
+
+import org.apache.http.conn.ssl.SSLSocketFactory;
+
+import de.timroes.axmlrpc.serializer.SerializerHandler;
+import de.timroes.axmlrpc.utils.CustomSSLSocketFactory;
 
 /**
  * An XMLRPCClient is a client used to make XML-RPC (Extensible Markup Language
@@ -94,6 +100,7 @@ public class XMLRPCClient {
 	private int flags;
 
 	private URL url;
+	private CustomSSLSocketFactory sf;
 	private Map<String,String> httpParameters = new HashMap<String, String>();
 
 	private Map<Long,Caller> backgroundCalls = new HashMap<Long, Caller>();
@@ -124,7 +131,8 @@ public class XMLRPCClient {
 
 		httpParameters.put(CONTENT_TYPE, TYPE_XML);
 		httpParameters.put(USER_AGENT, userAgent);
-
+		
+		sf = new CustomSSLSocketFactory();
 	}
 
 	/**
@@ -594,11 +602,19 @@ public class XMLRPCClient {
 				Call c = createCall(methodName, params);
 
 				URLConnection conn = url.openConnection();
-				if(!(conn instanceof HttpURLConnection)) {
+				if (url.getProtocol().equals("https"))
+				{
+					http = (HttpsURLConnection)conn;
+					((HttpsURLConnection)http).setSSLSocketFactory(sf);
+					((HttpsURLConnection)http).setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+				}else if (url.getProtocol().equals("http"))
+				{
+					http = (HttpURLConnection)conn;
+				}else
+				{
 					throw new IllegalArgumentException("The URL is not for a http connection.");
 				}
 
-				http = (HttpURLConnection)conn;
 				http.setRequestMethod(HTTP_POST);
 				http.setDoOutput(true);
 				http.setDoInput(true);
